@@ -1,59 +1,124 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đăng ký kỵ sĩ mới</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(to right, #ff4e50, #f9d423);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: white;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      width: 350px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #f9d423;
+      border: none;
+      border-radius: 6px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #e6c319;
+    }
+    .error, .success {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .error {
+      color: #ffbaba;
+    }
+    .success {
+      color: #b7ffb7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🦄 Đăng ký kỵ sĩ mới</h1>
+    <form id="registerForm">
+      <input type="text" id="username" placeholder="Tên người cưỡi" required />
+      <input type="email" id="email" placeholder="Email kỳ diệu" required />
+      <input type="password" id="password" placeholder="Mật khẩu bí mật" required />
+      <button type="submit">Tham gia ngay</button>
+      <div class="error" id="errorMsg"></div>
+      <div class="success" id="successMsg"></div>
+    </form>
+  </div>
 
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.24.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/aws-cognito-sdk.min.js"></script>
+  <script src="js/amazon-cognito-identity.min.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+      errorMsg.textContent = '';
+      successMsg.textContent = '';
 
-        <link rel="stylesheet" href="css/font.css">
-        <link rel="stylesheet" href="css/normalize.css">
-        <link rel="stylesheet" href="css/index.css">
-        <link rel="stylesheet" href="/css/message.css">
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
-        <![endif]-->
+      if (!username || !email || !password) {
+        errorMsg.textContent = "Vui lòng điền đầy đủ thông tin.";
+        return;
+      }
 
-        <div id="noCognitoMessage" class="configMessage" style="display: none;">
-            <div class="backdrop"></div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">No Cognito User Pool Configured</h3>
-                </div>
-                <div class="panel-body">
-                    <p>There is no user pool configured in <a href="/js/config.js">/js/config.js</a>. You'll configure this in Module 2 of the workshop.</p>
-                </div>
-            </div>
-        </div>
+      var poolData = {
+        UserPoolId: _config.cognito.userPoolId,
+        ClientId: _config.cognito.userPoolClientId
+      };
+      var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-        <header>
-          <img src="images/logo.png">
-        </header>
+      var attributeList = [];
+      var dataEmail = {
+        Name: 'email',
+        Value: email
+      };
 
-        <section class="form-wrap">
-            <h1>Register</h1>
-            <form id="registrationForm">
-              <input type="email" id="emailInputRegister" placeholder="Email" pattern=".*" required>
-              <input type="password" id="passwordInputRegister" placeholder="Password" pattern=".*" required>
-              <input type="password" id="password2InputRegister" placeholder="Confirm Password" pattern=".*" required>
+      var attributeEmail = new AmazonCognitoIdentity.CognitoUserAttribute(dataEmail);
+      attributeList.push(attributeEmail);
 
-              <input type="submit" value="Let's Ryde">
-            </form>
-        </section>
-
-        <script src="js/vendor/jquery-3.1.0.js"></script>
-        <script src="js/vendor/bootstrap.min.js"></script>
-        <script src="js/vendor/aws-cognito-sdk.min.js"></script>
-        <script src="js/vendor/amazon-cognito-identity.min.js"></script>
-        <script src="js/config.js"></script>
-        <script src="js/cognito-auth.js"></script>
-    </body>
+      userPool.signUp(username, password, attributeList, null, function(err, result) {
+        if (err) {
+          errorMsg.textContent = err.message || JSON.stringify(err);
+          return;
+        }
+        var cognitoUser = result.user;
+        successMsg.textContent = "Đăng ký thành công! Kiểm tra email để xác nhận.";
+      });
+    });
+  </script>
+</body>
 </html>
