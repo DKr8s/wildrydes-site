@@ -103,8 +103,8 @@
       var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
 
       var poolData = {
-        UserPoolId: _config.cognito.userPoolId,
-        ClientId: _config.cognito.userPoolClientId,
+        UserPoolId: window._config.cognito.userPoolId,
+        ClientId: window._config.cognito.userPoolClientId,
       };
       var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
